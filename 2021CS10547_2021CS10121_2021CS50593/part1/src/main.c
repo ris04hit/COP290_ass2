@@ -9,9 +9,29 @@
 
 static ucontext_t ctx;
 
-static void conjecture(int len, void* options, int sz, void fn(void*)); // Create context and start traversal
+static void conjecture(int len, void* options, int sz, void fn(void*)){ // Create context and start traversal
+	static ucontext_t ctx0;		// Creating another context for main
+	getcontext(&ctx);
+	char stack1[16384];
+	ctx.uc_stack.ss_sp = stack1;	// Assigning stack 1 to ctx
+	ctx.uc_stack.ss_size = sizeof stack1;
+	ctx.uc_link = &ctx0;	// On completion swaps to ctx0
+	int index = -1;
+	options -= sz;
+	getcontext(&ctx);		// Saving to ctx
+	if (index < len){
+		index ++;			// To ensure does not run after array is finished
+		options += sz;		// Traversing array
+		fn(options);		// Calling app
+	}
+	exit(0);				// Exit program
+}
 
-void assert(bool b); // Restore context if condition fails
+void assert(bool b){
+	if (!b){
+		setcontext(&ctx);
+	}
+}; // Restore context if condition fails
 
 bool is_prime(int x) {
 	for(int i = 2; i <= x/2; i ++) {
