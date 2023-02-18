@@ -6,6 +6,7 @@
 int main(int argc, char** argv){
     printf("Testing list!\n");
     struct list* l = list_new();
+    printf("a");
 
     int v = 5;
     struct listentry* n = list_add(l, &v);
