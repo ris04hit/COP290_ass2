@@ -51,7 +51,7 @@ int is_empty(struct list* l)  // Check if list is empty or not
 
 struct listentry* list_add(struct list* l, void* data)  // Add an item to the list
 {
-	struct listentry* Node = (struct listentry*)malloc(sizeof(struct listentry*));
+	struct listentry* Node = (struct listentry*)malloc(sizeof(struct listentry));
 	Node->data = data;
 	if (is_empty(l) == 0){
 		Node->prev = l->tail;
@@ -68,7 +68,7 @@ struct listentry* list_add(struct list* l, void* data)  // Add an item to the li
 struct list* list_new()  // Return an initialized list
 {
 	struct list* l;
-	l = (struct list*)malloc(sizeof(struct list*));
+	l = (struct list*)malloc(sizeof(struct list));
 	return l;
 }
 
