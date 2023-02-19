@@ -29,20 +29,19 @@ int main(int argc, char** argv) {
 
 static void f2 (char* word) {
     printf("Inside f2 %s\n", word);
-    // acquire_bucket(&hashmap, word);
-	// printf("acquired bucket %s\n", word);
-    // int* c = (int*) hashmap_get(&hashmap, word);
-    // int* c1 = (int*) malloc(sizeof(int));
-    // *c1 = 1;
-    // if(c != NULL) {
-    //     for(int i = 0; i < *c; i ++) {
-    //         // mythread_yield();
-    //     }
-    //     *c1 = *c + 1;
-    // }
-    // printf("Inside f2: c1 %d\n", *c1);
-    // hashmap_put(&hashmap, word, c1);
-    // release_bucket(&hashmap, word);
+    acquire_bucket(&hashmap, word);
+    int* c = (int*) hashmap_get(&hashmap, word);
+    int* c1 = (int*) malloc(sizeof(int));
+    *c1 = 1;
+    if(c != NULL) {
+        for(int i = 0; i < *c; i ++) {
+            mythread_yield();
+        }
+        *c1 = *c + 1;
+    }
+    printf("Inside f2: c1 %d\n", *c1);
+    hashmap_put(&hashmap, word, c1);
+    release_bucket(&hashmap, word);
     puts("finish f2");
 }
 
@@ -63,31 +62,16 @@ void readFile(void *args) {
 	    int i=0;
 	    char arr[25];
 	    int val =-1;
-		while((ch = fgetc(fp))!=EOF) {
-				if(ch!=' ' && ch!='\n' && ch!='\t' && ch!='\0') {
-					arr[i] = ch;
-					i++;
-				} else {
-					arr[i] = 0;
-					f2(arr);
-					for(int j=0;j<25;j++)
-						arr[j]='\0';
-					i=0;
-				}
-		}
-		// while((ch = fgetc(fp))!=EOF) {
-	    //     if(ch!=' ' && ch!='\n' && ch!='\t' && ch!='\0') {
-	    //         arr[i] = ch;
-	    //         i++;
-		// 		printf("index %d %d\n",i,ch);
-	    //     } else {
-	    //         arr[i] = 0;
-		// 		puts(arr);
-		// 		printf("len %ld\n",strlen(arr));
-	    //         f2(arr);
-	    //         for(int j=0;j<25;j++)
-	    //             arr[j]='\0';
-	    //         i=0;
-	    //     }
-	    // }
+	    while((ch = fgetc(fp))!=EOF) {
+	        if(ch!=' ' && ch!='\n' && ch!='\t' && ch!='\0') {
+	            arr[i] = ch;
+	            i++;
+	        } else {
+	            arr[i] = 0;
+	            f2(arr);
+	            for(int j=0;j<25;j++)
+	                arr[j]='\0';
+	            i=0;
+	        }
+	    }
 }

@@ -10,14 +10,13 @@
 #include"../include/list.h"
 
 struct list* ctx_list;
-struct ucontext_t* main_ctx;
+struct ucontext_t main_ctx;
 struct listentry* curr_elem;
 
 void mythread_init()      // Initialize threads list
 {
 	ctx_list = list_new();
-	main_ctx = (struct ucontext_t*) malloc(sizeof(ucontext_t));
-	getcontext(main_ctx);
+	getcontext(&main_ctx);
 }
 
 ucontext_t* mythread_create(void func(void*), void* arg)  // Create a new thread
@@ -28,7 +27,7 @@ ucontext_t* mythread_create(void func(void*), void* arg)  // Create a new thread
 	// printf("%d\n",(int)stack);
 	ctx->uc_stack.ss_sp = stack;
 	ctx->uc_stack.ss_size = sizeof(stack);
-	ctx->uc_link = main_ctx; 
+	ctx->uc_link = &main_ctx; 
 	void (* funcptr0)(void);
 	funcptr0 = (void (*)(void))func;
 	makecontext(ctx, funcptr0, 1, arg);
@@ -42,7 +41,7 @@ void mythread_join()  // Waits for other thread to complete. It is used in case 
 	while (is_empty(ctx_list)==0){
 		ucontext_t *ctx0 = (ucontext_t *)(Node1->data);
 		curr_elem = Node1;
-		swapcontext(main_ctx, ctx0);
+		swapcontext(&main_ctx, ctx0);
 		struct listentry* Node2;
 		if (Node1->next!=NULL){
 			Node2 = Node1->next;
@@ -94,9 +93,6 @@ void lock_acquire(struct lock* lk)   // Set lock. Yield if lock is acquired by s
 		}
 		else if (lk->ctx != (ucontext_t *)(curr_elem->data)){
 			mythread_yield();
-		}
-		else{
-			break;
 		}
 	}
 }
