@@ -75,7 +75,9 @@ struct lock {
 
 struct lock* lock_new()   // return an initialized lock object
 {
-	return (struct lock*) malloc(sizeof(struct lock));
+	struct lock* lk = (struct lock*) malloc(sizeof(struct lock));
+	lk->ctx = NULL;
+	return lk;
 }
 
 void lock_acquire(struct lock* lk)   // Set lock. Yield if lock is acquired by some other thread.
@@ -88,11 +90,16 @@ void lock_acquire(struct lock* lk)   // Set lock. Yield if lock is acquired by s
 			// else{
 			// 	lk->ctx = (ucontext_t *)(curr_elem->next->data);
 			// }
+			// printf("b\n");
 			lk->ctx = (ucontext_t *)(curr_elem->data);
 			break;
 		}
 		else if (lk->ctx != (ucontext_t *)(curr_elem->data)){
+			// printf("c\n");
 			mythread_yield();
+		}
+		else{
+			break;
 		}
 	}
 }
