@@ -1,5 +1,6 @@
 #include "mythread.h"
 #include "list.h"
+#include <string.h>
 #define SZ 4096
 
 struct hashmap_element_s {
@@ -33,13 +34,18 @@ int hash_func(const char* key){
     hash_code = (p*hash_code + asc)%m;
     k++;
   }
+  return hash_code;
 }
 
 int hashmap_put(struct hashmap_s *const hashmap, const char* key, void* data)   // Set value of the key as data in hashmap. You can use any method to resolve conflicts. Also write your own hashing function
 {
   int hash_code = hash_func(key);
   struct hashmap_element_s* elem = (struct hashmap_element_s*)malloc(sizeof(struct hashmap_element_s));
-  elem->key = (char*) key;
+  char* k = (char*)malloc((strlen(key)+1)*sizeof(char));
+  for (int i = 0; i<=strlen(key); i++){
+    *(k+i) = *(key+i);
+  }
+  elem->key = k;
   elem->data = data;
   if (hashmap->table[hash_code] == NULL){
     hashmap->table[hash_code] = list_new(); 
@@ -48,26 +54,27 @@ int hashmap_put(struct hashmap_s *const hashmap, const char* key, void* data)   
   else{
     struct listentry* Node = hashmap->table[hash_code]->head;
     while (Node != NULL){
-      if (((struct hashmap_element_s *)(Node->data))->key == key){
-        Node->data = (void*) elem;
+      if (strcmp(((struct hashmap_element_s *)(Node->data))->key,key)==0){
+        free(((struct hashmap_element_s *)(Node->data))->key);
+        free(Node->data);
+        list_rm(hashmap->table[hash_code], Node);
         break;
       }
       else{
         Node = Node->next;
       }
-      if (Node == NULL){
-        struct listentry* n = list_add(hashmap->table[hash_code], (void*) elem);
-      }
     }
+    struct listentry* n = list_add(hashmap->table[hash_code], (void*) elem);
   }
 }
 
 void* hashmap_get(struct hashmap_s *const hashmap, const char* key)    // Fetch value of a key from hashmap
 {
   int hash_code = hash_func(key);
+  if (hashmap->table[hash_code] == NULL){return NULL;}
   struct listentry* Node = hashmap->table[hash_code]->head;
   while (Node != NULL){
-    if (((struct hashmap_element_s *)(Node->data))->key == key){
+    if (strcmp(((struct hashmap_element_s *)(Node->data))->key,key)==0){
       return ((struct hashmap_element_s *)(Node->data))->data;
     }
     else{

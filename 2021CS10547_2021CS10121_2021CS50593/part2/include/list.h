@@ -37,6 +37,7 @@ void list_rm(struct list* l, struct listentry* e)    // Remove an item from the 
 			e->next->prev = e->prev;
 		}
 	}
+	free(e);
 }
 
 int is_empty(struct list* l)  // Check if list is empty or not
