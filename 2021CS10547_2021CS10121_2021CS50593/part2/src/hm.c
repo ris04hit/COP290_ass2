@@ -32,6 +32,7 @@ int hash_func(const char* key){
   int hash_code = 0;
   while (*k != '\0'){
     int asc = (int) *k;
+    if (asc < 0){asc = -asc;}
     hash_code = (p*hash_code + asc)%m;
     k++;
   }
@@ -101,15 +102,20 @@ void hashmap_iterator(struct hashmap_s* const hashmap, int (*f)(struct hashmap_e
 int acquire_bucket(struct hashmap_s *const hashmap, const char* key)   // Acquire lock on a hashmap slot
 {
   int hash_code = hash_func(key);
+  // puts(key);
+  // printf("locked %ld %s\n",strlen(key), key);
   if (hashmap->lk[hash_code] == NULL){
     hashmap->lk[hash_code] = lock_new();
+    // printf("a\n");
   }
   lock_acquire(hashmap->lk[hash_code]);
+  // printf("%s \n",key);
 }
 
 int release_bucket(struct hashmap_s *const hashmap, const char* key)   // Release acquired lock
 {
   int  hash_code = hash_func(key);
+  // printf("unlocked %s\n",key);
   if (hashmap->lk[hash_code] != NULL){
     lock_release(hashmap->lk[hash_code]);
   }
