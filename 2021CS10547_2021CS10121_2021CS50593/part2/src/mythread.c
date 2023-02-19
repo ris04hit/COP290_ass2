@@ -37,14 +37,20 @@ ucontext_t* mythread_create(void func(void*), void* arg)  // Create a new thread
 
 void mythread_join()  // Waits for other thread to complete. It is used in case of dependent threads.
 {
-	struct listentry* Node = ctx_list->head;
-	while (Node != NULL){
-		ucontext_t *ctx0 = (ucontext_t *)(Node->data);
-		curr_elem = Node;
+	struct listentry* Node1 = ctx_list->head;
+	while (is_empty(ctx_list)==0){
+		ucontext_t *ctx0 = (ucontext_t *)(Node1->data);
+		curr_elem = Node1;
 		swapcontext(&main_ctx, ctx0);
-		struct listentry* Node2 = Node->next;
-		list_rm(ctx_list, Node);
-		Node = Node2;
+		struct listentry* Node2;
+		if (Node1->next!=NULL){
+			Node2 = Node1->next;
+		}
+		else{
+			Node2 = ctx_list->head;
+		}
+		list_rm(ctx_list, Node1);
+		Node1 = Node2;
 	}
 }
 
@@ -66,8 +72,34 @@ void mythread_yield()  // Perform context switching here
 struct lock {
 	ucontext_t* ctx;
 };
-struct lock* lock_new();   // return an initialized lock object
-void lock_acquire(struct lock* lk);   // Set lock. Yield if lock is acquired by some other thread.
-int lock_release(struct lock* lk);   // Release lock
+
+struct lock* lock_new()   // return an initialized lock object
+{
+	return (struct lock*) malloc(sizeof(struct lock));
+}
+
+void lock_acquire(struct lock* lk)   // Set lock. Yield if lock is acquired by some other thread.
+{
+	while(1){
+		if (lk->ctx == NULL){
+			// if (ctx_list->tail == curr_elem){
+			// 	lk->ctx = (ucontext_t *)(ctx_list->head->data);
+			// }
+			// else{
+			// 	lk->ctx = (ucontext_t *)(curr_elem->next->data);
+			// }
+			lk->ctx = (ucontext_t *)(curr_elem->data);
+			break;
+		}
+		else if (lk->ctx != (ucontext_t *)(curr_elem->data)){
+			mythread_yield();
+		}
+	}
+}
+
+int lock_release(struct lock* lk)   // Release lock
+{
+	lk->ctx = NULL;
+}
 
 #endif
