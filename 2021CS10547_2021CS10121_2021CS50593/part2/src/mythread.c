@@ -24,7 +24,6 @@ ucontext_t* mythread_create(void func(void*), void* arg)  // Create a new thread
 	ucontext_t *ctx = (ucontext_t *)malloc(sizeof(ucontext_t));
 	getcontext(ctx);
 	char* stack = (char *)malloc(16384*sizeof(char));
-	// printf("%d\n",(int)stack);
 	ctx->uc_stack.ss_sp = stack;
 	ctx->uc_stack.ss_size = sizeof(stack);
 	ctx->uc_link = &main_ctx; 
@@ -84,18 +83,10 @@ void lock_acquire(struct lock* lk)   // Set lock. Yield if lock is acquired by s
 {
 	while(1){
 		if (lk->ctx == NULL){
-			// if (ctx_list->tail == curr_elem){
-			// 	lk->ctx = (ucontext_t *)(ctx_list->head->data);
-			// }
-			// else{
-			// 	lk->ctx = (ucontext_t *)(curr_elem->next->data);
-			// }
-			// printf("b\n");
-			lk->ctx = (ucontext_t *)(curr_elem->data);
+			(lk->ctx) = ((ucontext_t *)(curr_elem->data));
 			break;
 		}
-		else if (lk->ctx != (ucontext_t *)(curr_elem->data)){
-			// printf("c\n");
+		else if ((lk->ctx) != ((ucontext_t *)(curr_elem->data))){
 			mythread_yield();
 		}
 		else{
