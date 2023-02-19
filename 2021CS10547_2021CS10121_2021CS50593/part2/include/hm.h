@@ -14,6 +14,7 @@ struct hashmap_s {
 
 
 int hashmap_create(struct hashmap_s *const out_hashmap);   // Initialize a hashmap
+int hash_func(const char* key);   // Implements hash function
 int hashmap_put(struct hashmap_s *const hashmap, const char* key, void* data);   // Set value of the key as data in hashmap. You can use any method to resolve conflicts. Also write your own hashing function
 void* hashmap_get(struct hashmap_s *const hashmap, const char* key);    // Fetch value of a key from hashmap
 void hashmap_iterator(struct hashmap_s* const hashmap, 
