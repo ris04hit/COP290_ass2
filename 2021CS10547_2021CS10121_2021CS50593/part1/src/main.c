@@ -14,7 +14,7 @@ static void conjecture(int len, void* options, int sz, void fn(void*)){ // Creat
 	getcontext(&ctx);
 	char stack1[16384];
 	ctx.uc_stack.ss_sp = stack1;	// Assigning stack 1 to ctx
-	ctx.uc_stack.ss_size = sizeof stack1;
+	ctx.uc_stack.ss_size = sizeof(stack1);
 	ctx.uc_link = &ctx0;	// On completion swaps to ctx0
 	int index = -1;
 	options -= sz;
