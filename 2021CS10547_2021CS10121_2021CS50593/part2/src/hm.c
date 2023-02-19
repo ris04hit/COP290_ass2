@@ -57,9 +57,9 @@ int hashmap_put(struct hashmap_s *const hashmap, const char* key, void* data)   
     struct listentry* Node = hashmap->table[hash_code]->head;
     while (Node != NULL){
       if (strcmp(((struct hashmap_element_s *)(Node->data))->key,key)==0){
+        list_rm(hashmap->table[hash_code], Node);
         free(((struct hashmap_element_s *)(Node->data))->key);
         free(Node->data);
-        list_rm(hashmap->table[hash_code], Node);
         break;
       }
       else{
